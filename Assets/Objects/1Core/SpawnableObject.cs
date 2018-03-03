@@ -4,8 +4,12 @@ using UnityEngine;
 
 public class SpawnableObject : MonoBehaviour {
 
-	// Use this for initialization
-	void Start () {
+    public Rigidbody2D rigidBody {
+        get { return gameObject.GetComponent<Rigidbody2D>(); }
+    }
+
+    // Use this for initialization
+    void Start () {
 		
 	}
 	

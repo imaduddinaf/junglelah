@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections;using System.Collections.Generic;using UnityEngine;public enum MonsterState {
-    Aware, Aggresive, Fleeing, Alert, Idle
-}public enum AttackState {
-    Idle, Full
-}public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittable {    private float _attack;    private float _defend;    private float _critical;    private float _criticalChance;    private float _healthPoint;    private float _stamina;    private float _mana;    private float _movementSpeed;    public MonsterState state = MonsterState.Idle;    public GameObject objectToBeObserved;    public float xDistanceToTarget {
+using System.Collections;using System.Collections.Generic;using UnityEngine;public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittable, ISmartAI {    private float _attack;    private float _defend;    private float _critical;    private float _criticalChance;    private float _healthPoint;    private float _stamina;    private float _mana;    private float _movementSpeed;    private float _alertArea;    private float _awarenessArea;    private float _aggresiveArea;    public SmartAIState state = SmartAIState.Idle;    public GameObject objectToBeObserved; // enemy    public float xDistanceToTarget {
         get {
             float targetX = objectToBeObserved.transform.position.x;
             float targetWidth = objectToBeObserved.GetComponent<SpriteRenderer>().bounds.size.x;
@@ -26,8 +22,16 @@ using System.Collections;using System.Collections.Generic;using UnityEngine;
             return actualDistance;
         }
     }    public bool isTargetOnRight {
-        get { return xDistanceToTarget > 0; }
-    }        public float movementSpeed {        get { return _movementSpeed; }        set { _movementSpeed = value; }    }        public float attack {        get { return _attack; }        set { _attack = value; }    }    public float critical {        get { return _critical; }        set { _critical = value; }    }    public float criticalChance {        get { return _criticalChance; }        set { _criticalChance = value; }    }    public float healthPoint {        get { return _healthPoint; }        set { _healthPoint = value; }    }    public float stamina{        get { return _stamina; }        set { _stamina = value; }    }    public float mana {        get { return _mana; }        set { _mana = value; }    }    public float defend {        get { return _defend; }        set { _defend = value; }    }    public void Attack(IHittable target)  {        float attackDamage = StatusConversionHelper.GetAttackDamage(attack, critical, criticalChance);        target.GetHit(attackDamage);    }    public virtual void AttackAction() {
+        get {
+            float targetX = objectToBeObserved.transform.position.x;
+            float thisX = gameObject.transform.position.x;
+            float anchorDistance = targetX - thisX;
+
+            return anchorDistance > 0;
+        }
+    }        public float movementSpeed {        get { return _movementSpeed; }        set { _movementSpeed = value; }    }        public float attack {        get { return _attack; }        set { _attack = value; }    }    public float critical {        get { return _critical; }        set { _critical = value; }    }    public float criticalChance {        get { return _criticalChance; }        set { _criticalChance = value; }    }    public float healthPoint {        get { return _healthPoint; }        set { _healthPoint = value; }    }    public float stamina{        get { return _stamina; }        set { _stamina = value; }    }    public float mana {        get { return _mana; }        set { _mana = value; }    }    public float defend {        get { return _defend; }        set { _defend = value; }    }
+
+    public float alertArea {        get { return _alertArea; }        set { _alertArea = value; }    }    public float awarenessArea {        get { return _awarenessArea; }        set { _awarenessArea = value; }    }    public float aggresiveArea {        get { return _aggresiveArea; }        set { _aggresiveArea = value; }    }    public void Attack(IHittable target)  {        float attackDamage = StatusConversionHelper.GetAttackDamage(attack, critical, criticalChance);        target.GetHit(attackDamage);    }    public virtual void AttackAction() {
         // empty
     }    public void GetHit(float attack) {        healthPoint -= StatusConversionHelper.GetHitDamage(attack, defend);    }    public void Move(Vector2 direction) {        // empty, only follows enemy    }
 
@@ -40,26 +44,41 @@ using System.Collections;using System.Collections.Generic;using UnityEngine;
     public override void DoOnFixedUpdate() {
         base.DoOnFixedUpdate();
 
-        Observe(objectToBeObserved);        UpdateFacing();
+        Observe(objectToBeObserved);
     }    public void Observe(GameObject target) {
         state = DetermineState(target);
 
         switch (state) {
-            case MonsterState.Aggresive:
+            case SmartAIState.Aggresive:
                 Follow(target, 100);
+                UpdateFacing();
                 break;
-            case MonsterState.Alert:
+            case SmartAIState.Alert:
+                UpdateFacing();
                 break;
-            case MonsterState.Aware:
-                Follow(target, 60);
+            case SmartAIState.Aware:
+                Follow(target, 50);
+                UpdateFacing();
                 break;
-            case MonsterState.Fleeing:
+            case SmartAIState.Fleeing:
                 break;
-            case MonsterState.Idle:
+            case SmartAIState.Idle:
                 break;
         }
-    }    protected MonsterState DetermineState(GameObject target) {
-        return MonsterState.Aware;
+    }    public SmartAIState DetermineState(GameObject target) {
+        SmartAIState state;
+
+        if (xDistanceToTarget <= StatusConversionHelper.GetActualAIStateArea(aggresiveArea)) {
+            state = SmartAIState.Aggresive;
+        } else if (xDistanceToTarget <= StatusConversionHelper.GetActualAIStateArea(awarenessArea)) {
+            state = SmartAIState.Aware;
+        } else if (xDistanceToTarget <= StatusConversionHelper.GetActualAIStateArea(alertArea)) {
+            state = SmartAIState.Alert;
+        } else {
+            state = SmartAIState.Idle;
+        }
+
+        return state;
     }    protected void Follow(GameObject target, float speedPercentage) {
         float desiredSpeed = (speedPercentage / 100) * movementSpeed;
         float actualSpeed = StatusConversionHelper.GetActualMovementSpeed(desiredSpeed);
@@ -73,9 +92,9 @@ using System.Collections;using System.Collections.Generic;using UnityEngine;
     }    public void UpdateFacing() {
         Vector3 currentScale = gameObject.transform.localScale;
 
-        if (isTargetOnRight && gameObject.transform.localScale.x > 0) {
+        if (isTargetOnRight && gameObject.transform.localScale.x < 0) {
             currentScale.x = Math.Abs(currentScale.x);
-        } else if (!isTargetOnRight && gameObject.transform.localScale.x < 0) {
+        } else if (!isTargetOnRight && gameObject.transform.localScale.x > 0) {
             currentScale.x *= -1;
         }
 

@@ -20,7 +20,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour {
         DoOnFixedUpdate();
     }
 
-    void OnTriggerEnter(Collider other) {
+    void OnTriggerEnter2D(Collider2D other) {
         DoOnTriggerEnter(other);
     }
 
@@ -40,7 +40,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour {
         // empty
     }
 
-    public virtual void DoOnTriggerEnter(Collider other) {
+    public virtual void DoOnTriggerEnter(Collider2D other) {
         // empty
     }
 }

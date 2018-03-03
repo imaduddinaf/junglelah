@@ -333,7 +333,7 @@ Prefab:
     - target: {fileID: 114545474018859030, guid: 2f4cb190486321644a74f67f5e104435,
         type: 2}
       propertyPath: defaultMovSpeed
-      value: 200
+      value: 300
       objectReference: {fileID: 0}
     - target: {fileID: 1269634972326712, guid: 2f4cb190486321644a74f67f5e104435, type: 2}
       propertyPath: m_Name

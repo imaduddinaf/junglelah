@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum AttackState {
+    Idle, Full
+}
+
 public interface IAttackable {
     float attack { get; set; }
     float stamina { get; set; }

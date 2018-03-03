@@ -23,7 +23,11 @@ public class Ghoul : Monster {
         healthPoint = 200;
         defend = 20;
         movementSpeed = 100;
-	}
+
+        alertArea = 200;
+        awarenessArea = 160;
+        aggresiveArea = 80;
+    }
 
     public override void DoOnFixedUpdate() {
         base.DoOnFixedUpdate();
@@ -60,14 +64,13 @@ public class Ghoul : Monster {
 
         IHittable hittableTarget = target.GetComponent<IHittable>();
 
-        if (child.tag == MyConstant.Tag.HAND && hittableTarget != null) {
+        if (child.tag == MyConstant.Tag.HIT_AREA && hittableTarget != null) {
             Attack(hittableTarget);
-            Debug.Log("ghoul hand hit something");
         }
     }
 
     public void MoveHandAttack(bool punch) {
-        float MAGIC_CONST = 40;
+        float MAGIC_CONST = 60; // hit length
         Vector2 direction = Vector2.left;
 
         if (isTargetOnRight) {

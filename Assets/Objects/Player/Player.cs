@@ -8,13 +8,13 @@
 
     public override void DoOnStart() {        base.DoOnStart();        if (defaultMovSpeed > 0) {            movementSpeed = defaultMovSpeed;        } else {            movementSpeed = 50; // dummy speed        }	}
 
-    public override void DoOnTriggerEnter(Collider other) {
+    public override void DoOnTriggerEnter(Collider2D other) {
         base.DoOnTriggerEnter(other);
-        
-        Debug.Log("player triggered by something");
+
+        // empty
     }
 
     public void GetHit(float attack) {
-        Debug.Log("player got hit from something");
+        Debug.Log("player got hit by something");
     }
 }

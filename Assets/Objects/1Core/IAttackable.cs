@@ -4,6 +4,8 @@ using UnityEngine;
 
 public interface IAttackable {
     float attack { get; set; }
+    float stamina { get; set; }
+    float mana { get; set; }
     float critical { get; set; }
     float criticalChance { get; set; }
     Rigidbody2D rigidBody { get; }

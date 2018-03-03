@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MovementController : MonoBehaviour {
+public class ActionController : MonoBehaviour {
 
     public GameObject moveableObject;
     public IMoveable moveable;
@@ -17,25 +17,26 @@ public class MovementController : MonoBehaviour {
 	}
 
 	void MovementInput () {
+        if (moveable == null || moveable.rigidBody == null) return;
+
         moveable.rigidBody.velocity = Vector2.zero;
-        Vector2 movementDirection = Vector2.zero;
         
 		if (Input.GetKey(KeyCode.W)) { 
-            movementDirection = Vector2.up;
+            moveable.Move(Vector2.up);
         }
 
         if (Input.GetKey(KeyCode.D)) { 
-            movementDirection = Vector2.right;
+            moveable.Move(Vector2.right);
         }
 
         if (Input.GetKey(KeyCode.S)) {
-            movementDirection = Vector2.down;
+            moveable.Move(Vector2.down);
         }
 
         if (Input.GetKey(KeyCode.A)) {
-            movementDirection = Vector2.left;
+            moveable.Move(Vector2.left);
         }
 
-        moveable.Move(movementDirection);
+        
     }
 }

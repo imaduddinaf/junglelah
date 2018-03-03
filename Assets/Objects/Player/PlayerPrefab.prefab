@@ -22,9 +22,10 @@ GameObject:
   - component: {fileID: 212658672900180480}
   - component: {fileID: 50982785578472212}
   - component: {fileID: 114545474018859030}
+  - component: {fileID: 70086842773850604}
   m_Layer: 0
-  m_Name: Player
-  m_TagString: Untagged
+  m_Name: PlayerPrefab
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -62,6 +63,21 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!70 &70086842773850604
+CapsuleCollider2D:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1269634972326712}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_Size: {x: 4.5, y: 5}
+  m_Direction: 0
 --- !u!114 &114545474018859030
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -73,6 +89,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 275b41645a864da4c9cc9634a83d2404, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  defaultMovSpeed: 0
 --- !u!212 &212658672900180480
 SpriteRenderer:
   m_ObjectHideFlags: 1

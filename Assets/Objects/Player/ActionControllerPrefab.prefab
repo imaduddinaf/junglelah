@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4636404480818322}
   - component: {fileID: 114123882794926778}
   m_Layer: 0
-  m_Name: MovementController
+  m_Name: ActionControllerPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

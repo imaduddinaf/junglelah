@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Player : SpawnableObject, IMoveable, IAttackable, IHittable {
     private float _attack;
+    private float _attackRange;
     private float _defend;
     private float _critical;
     private float _criticalChance;
@@ -12,6 +13,11 @@ public class Player : SpawnableObject, IMoveable, IAttackable, IHittable {
     private float _mana;
     private float _movementSpeed;
     public float defaultMovSpeed;
+
+    private float _maxAttackDuration = 1;
+    private float _attackDuration = 0;
+    private bool _isAttacking = false;
+    private AttackState _attackState = AttackState.Idle;
 
     public float movementSpeed {
         get { return _movementSpeed; }
@@ -23,6 +29,11 @@ public class Player : SpawnableObject, IMoveable, IAttackable, IHittable {
         set { _attack = value; }
     }
 
+    public float attackRange {
+        get { return _attackRange; }
+        set { _attackRange = value; }
+    }
+
     public float critical {
         get { return _critical; }
         set { _critical = value; }
@@ -31,6 +42,26 @@ public class Player : SpawnableObject, IMoveable, IAttackable, IHittable {
     public float criticalChance {
         get { return _criticalChance; }
         set { _criticalChance = value; }
+    }
+
+    public float maxAttackDuration {
+        get { return _maxAttackDuration; }
+        set { _maxAttackDuration = value; }
+    }
+
+    public float attackDuration {
+        get { return _attackDuration; }
+        set { _attackDuration = value; }
+    }
+
+    public bool isAttacking {
+        get { return _isAttacking; }
+        set { _isAttacking = value; }
+    }
+
+    public AttackState attackState {
+        get { return _attackState; }
+        set { _attackState = value; }
     }
 
     public float healthPoint {

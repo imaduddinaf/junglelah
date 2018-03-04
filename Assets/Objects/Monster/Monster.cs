@@ -3,8 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittable, ISmartAI {
+public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittable, ISmartAI, SmartBrainDelegate {
     private float _attack;
+    private float _attackRange;
     private float _defend;
     private float _critical;
     private float _criticalChance;
@@ -13,35 +14,19 @@ public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittab
     private float _mana;
     private float _movementSpeed;
 
-    private float _alertArea;
-    private float _awarenessArea;
-    private float _aggresiveArea;
+    private SmartBrain _brain;
+    public GameObject _objectToBeObserved; // enemy
 
-    public SmartAIState state = SmartAIState.Idle;
-    public GameObject objectToBeObserved; // enemy
+    private float _maxAttackDuration;
+    private float _attackDuration = 0;
+    private bool _isAttacking = false;
+    private AttackState _attackState = AttackState.Idle;
+        
 
-    public float xDistanceToTarget {
-        get {
-            float targetX = objectToBeObserved.transform.position.x;
-            float targetWidth = objectToBeObserved.GetComponent<SpriteRenderer>().bounds.size.x;
+    // SETTER GETTER
 
-            float thisX = gameObject.transform.position.x;
-            float thisWidth = gameObject.GetComponent<SpriteRenderer>().bounds.size.x;
-
-            float anchorDistance = targetX - thisX; // + right, - left
-            
-            float actualTargetX = targetX - (0.5f * targetWidth);
-            float actualThisX = thisX + (0.5f * thisWidth);
-            float actualDistance = actualTargetX - actualThisX; // target on right
-
-            if (anchorDistance < 0) { // target on left
-                actualTargetX = targetX + (0.5f * targetWidth);
-                actualThisX = thisX - (0.5f * thisWidth);
-                actualDistance = actualTargetX - actualThisX;
-            }
-
-            return actualDistance;
-        }
+    public Vector2 distanceToTarget {
+        get { return StatusConversionHelper.GetDistanceBetween(gameObject, _objectToBeObserved); }
     }
 
     public bool isTargetOnRight {
@@ -64,6 +49,11 @@ public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittab
         set { _attack = value; }
     }
 
+    public float attackRange {
+        get { return _attackRange; }
+        set { _attackRange = value; }
+    }
+
     public float critical {
         get { return _critical; }
         set { _critical = value; }
@@ -72,6 +62,26 @@ public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittab
     public float criticalChance {
         get { return _criticalChance; }
         set { _criticalChance = value; }
+    }
+
+    public float maxAttackDuration {
+        get { return _maxAttackDuration; }
+        set { _maxAttackDuration = value; }
+    }
+
+    public float attackDuration {
+        get { return _attackDuration; }
+        set { _attackDuration = value; }
+    }
+
+    public bool isAttacking {
+        get { return _isAttacking; }
+        set { _isAttacking = value; }
+    }
+
+    public AttackState attackState {
+        get { return _attackState; }
+        set { _attackState = value; }
     }
 
     public float healthPoint {
@@ -94,20 +104,52 @@ public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittab
         set { _defend = value; }
     }
 
+    public SmartBrain brain {
+        get { return _brain; }
+        set { _brain = value; }
+    }
+
+    public GameObject body {
+        get { return gameObject; }
+        set { gameObject = value; }
+    }
+
+    public GameObject objectToBeObserved {
+        get { return _objectToBeObserved; }
+        set { _objectToBeObserved = value; }
+    }
+
     public float alertArea {
-        get { return _alertArea; }
-        set { _alertArea = value; }
+        get { return brain.alertArea; }
+        set { brain.alertArea = value; }
     }
 
     public float awarenessArea {
-        get { return _awarenessArea; }
-        set { _awarenessArea = value; }
+        get { return brain.awarenessArea; }
+        set { brain.awarenessArea = value; }
     }
 
     public float aggresiveArea {
-        get { return _aggresiveArea; }
-        set { _aggresiveArea = value; }
+        get { return brain.aggresiveArea; }
+        set { brain.aggresiveArea = value; }
     }
+
+    // MONO BEHAVIOUR
+
+    public override void DoOnAwake() {
+        base.DoOnAwake();
+
+        brain = new SmartBrain(this);
+        objectToBeObserved = GameObject.FindGameObjectWithTag(MyConstant.Tag.PLAYER);
+    }
+
+    public override void DoOnFixedUpdate() {
+        base.DoOnFixedUpdate();
+
+        brain.Observe(objectToBeObserved);
+    }
+
+    // LOGIC
 
     public void Attack(IHittable target)  {
         float attackDamage = StatusConversionHelper.GetAttackDamage(attack, critical, criticalChance);
@@ -126,61 +168,9 @@ public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittab
         // empty, only follows enemy
     }
 
-    public override void DoOnStart() {
-        base.DoOnStart();
-
-        objectToBeObserved = GameObject.FindGameObjectWithTag("Player");
-    }
-
-    public override void DoOnFixedUpdate() {
-        base.DoOnFixedUpdate();
-
-        Observe(objectToBeObserved);
-    }
-
-    public void Observe(GameObject target) {
-        state = DetermineState(target);
-
-        switch (state) {
-            case SmartAIState.Aggresive:
-                Follow(target, 100);
-                UpdateFacing();
-                break;
-            case SmartAIState.Alert:
-                UpdateFacing();
-                break;
-            case SmartAIState.Aware:
-                Follow(target, 50);
-                UpdateFacing();
-                break;
-            case SmartAIState.Fleeing:
-                break;
-            case SmartAIState.Idle:
-                break;
-        }
-    }
-
-    public SmartAIState DetermineState(GameObject target) {
-        SmartAIState state;
-
-        if (xDistanceToTarget <= StatusConversionHelper.GetActualAIStateArea(aggresiveArea)) {
-            state = SmartAIState.Aggresive;
-        } else if (xDistanceToTarget <= StatusConversionHelper.GetActualAIStateArea(awarenessArea)) {
-            state = SmartAIState.Aware;
-        } else if (xDistanceToTarget <= StatusConversionHelper.GetActualAIStateArea(alertArea)) {
-            state = SmartAIState.Alert;
-        } else {
-            state = SmartAIState.Idle;
-        }
-
-        return state;
-    }
-
     protected void Follow(GameObject target, float speedPercentage) {
         float desiredSpeed = (speedPercentage / 100) * movementSpeed;
         float actualSpeed = StatusConversionHelper.GetActualMovementSpeed(desiredSpeed);
-
-        //rigidBody.transform.LookAt(target.transform);
 
         rigidBody.transform.position = Vector2.MoveTowards(
             rigidBody.transform.position, 
@@ -188,7 +178,7 @@ public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittab
             actualSpeed * Time.deltaTime);
     }
 
-    public void UpdateFacing() {
+    public void LookIntoTarget() {
         Vector3 currentScale = gameObject.transform.localScale;
 
         if (isTargetOnRight && gameObject.transform.localScale.x < 0) {
@@ -198,5 +188,29 @@ public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittab
         }
 
         gameObject.transform.localScale = currentScale;
+    }
+
+    // SMART BRAIN DELEGATE
+
+    public void OnAlert(GameObject target) {
+        LookIntoTarget();
+    }
+
+    public void OnAggresive(GameObject target) {
+        Follow(target, 100);
+        LookIntoTarget();
+    }
+
+    public void OnAware(GameObject target) {
+        Follow(target, 50);
+        LookIntoTarget();
+    }
+
+    public void OnFleeing(GameObject target) {
+        // doin nothing
+    }
+
+    public void OnIdle(GameObject target) {
+        // doin nothing
     }
 }

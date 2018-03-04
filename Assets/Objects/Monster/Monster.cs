@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittable, ISmartAI, SmartBrainDelegate {
+public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittable, ISmartAI, SmartBrainDelegate, IDropableObject {
     private float _attack;
     private float _attackRange;
     private float _defend;
@@ -21,7 +21,8 @@ public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittab
     private float _attackDuration = 0;
     private bool _isAttacking = false;
     private AttackState _attackState = AttackState.Idle;
-        
+
+    private List<Tuple<IItem, float>> _drops;
 
     // SETTER GETTER
 
@@ -133,6 +134,11 @@ public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittab
         set { brain.aggresiveArea = value; }
     }
 
+    public List<Tuple<IItem, float>> drops {
+        get { return _drops; }
+        set { _drops = value; }
+    }
+
     // MONO BEHAVIOUR
 
     public override void DoOnAwake() {
@@ -140,6 +146,9 @@ public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittab
 
         brain = new SmartBrain(this);
         objectToBeObserved = GameObject.FindGameObjectWithTag(MyConstant.Tag.PLAYER);
+
+        InitAttributes();
+        PopulateDrops();
     }
 
     public override void DoOnFixedUpdate() {
@@ -149,6 +158,14 @@ public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittab
     }
 
     // LOGIC
+
+    public virtual void InitAttributes() {
+        // init monster properties by code
+    }
+
+    public virtual void PopulateDrops() {
+        // init monster properties by code
+    }
 
     public void Attack(IHittable target)  {
         float attackDamage = StatusConversionHelper.GetAttackDamage(attack, critical, criticalChance);
@@ -211,5 +228,19 @@ public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittab
 
     public void OnIdle(GameObject target) {
         // doin nothing
+    }
+
+    public List<IItem> GetDrops() {
+        List<IItem> probableDrops = new List<IItem>();
+
+        foreach (Tuple<IItem, float> drop in drops) {
+            IItem item = drop.first;
+            float probability = drop.last;
+
+            // get random item with probability here
+            // then add into probableDrops
+        }
+
+        return probableDrops;
     }
 }

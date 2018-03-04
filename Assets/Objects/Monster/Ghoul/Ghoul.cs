@@ -14,21 +14,6 @@ public class Ghoul : Monster {
         _hand = gameObject.transform.Find("Hand").gameObject;
     }
 
-    public override void DoOnStart() {
-        base.DoOnStart();
-
-        attack = 50;
-        attackRange = 40;
-        healthPoint = 200;
-        defend = 20;
-        movementSpeed = 100;
-
-        alertArea = 200;
-        awarenessArea = 160;
-        aggresiveArea = 80;
-        maxAttackDuration = 1;
-    }
-
     public override void DoOnFixedUpdate() {
         base.DoOnFixedUpdate();
 
@@ -53,6 +38,30 @@ public class Ghoul : Monster {
     }
 
     // LOGIC
+
+    public override void InitAttributes() {
+        base.InitAttributes();
+
+        attack = 50;
+        attackRange = 40;
+        healthPoint = 200;
+        defend = 20;
+        movementSpeed = 100;
+
+        alertArea = 200;
+        awarenessArea = 160;
+        aggresiveArea = 80;
+        maxAttackDuration = 1;
+    }
+
+    public override void PopulateDrops() {
+        base.PopulateDrops();
+
+        drops = new List<Tuple<IItem, float>> {
+            new Tuple<IItem, float>(new HPPotion(), 30),
+            new Tuple<IItem, float>(new WoodenSword(), 10)
+        };
+    }
 
     public override void AttackAction() {
         base.AttackAction();

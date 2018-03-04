@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum SmartBrainState {
-    Aware, Aggresive, Fleeing, Alert, Idle
+    Aware, Aggresive, Fleeing, Alert, Idle // game designer to decide
 }
 
 public interface SmartBrainDelegate {

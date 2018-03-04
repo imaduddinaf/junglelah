@@ -111,7 +111,6 @@ public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittab
 
     public GameObject body {
         get { return gameObject; }
-        set { gameObject = value; }
     }
 
     public GameObject objectToBeObserved {

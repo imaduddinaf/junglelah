@@ -90,7 +90,12 @@ public class SmartBrain {
         bool shouldFlee = false;
 
         IAttackable attacker = _brainDelegate.objectToBeObserved.GetComponent<IAttackable>();
-        IHittable defender = _brainDelegate.body.GetComponent<IHittable>();
+        IHittable mine = _brainDelegate.body.GetComponent<IHittable>();
+
+        // stupid logic to run away from your enemy!!
+        // need another logic
+        bool isTwoHitKO = mine.healthPoint <= (StatusConversionHelper.GetHitDamage(attacker.attack, mine.defense) * 2);
+        shouldFlee = isTwoHitKO;
 
         return shouldFlee;
     }

@@ -221,14 +221,31 @@ public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittab
             actualSpeed * Time.deltaTime);
     }
 
-    public void LookIntoTarget() {
+    private void LookIntoTarget() {
+        LookTarget(true);
+    }
+
+    private void LookAwayFromTarget() {
+        LookTarget(false);
+    }
+
+    private void LookTarget(bool into) {
         Vector3 currentScale = gameObject.transform.localScale;
 
-        if (isTargetOnRight && gameObject.transform.localScale.x < 0) {
-            currentScale.x = Math.Abs(currentScale.x);
-        } else if (!isTargetOnRight && gameObject.transform.localScale.x > 0) {
-            currentScale.x *= -1;
+        if (into) {
+            if (isTargetOnRight && gameObject.transform.localScale.x < 0) {
+                currentScale.x = Math.Abs(currentScale.x);
+            } else if (!isTargetOnRight && gameObject.transform.localScale.x > 0) {
+                currentScale.x *= -1;
+            }
+        } else {
+            if (isTargetOnRight && gameObject.transform.localScale.x > 0) {
+                currentScale.x *= -1;
+            } else if (!isTargetOnRight && gameObject.transform.localScale.x < 0) {
+                currentScale.x = Math.Abs(currentScale.x);
+            }
         }
+        
 
         gameObject.transform.localScale = currentScale;
     }
@@ -241,7 +258,7 @@ public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittab
 
     public void OnAggresive(GameObject target) {
         Follow(target, 100);
-        LookIntoTarget();
+        LookAwayIntoTarget();
     }
 
     public void OnAware(GameObject target) {
@@ -250,7 +267,8 @@ public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittab
     }
 
     public void OnFleeing(GameObject target) {
-        // doin nothing
+        Follow(target, -100);
+        LookAwayFromTarget();
     }
 
     public void OnIdle(GameObject target) {

@@ -237,8 +237,7 @@ public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittab
             IItem item = drop.first;
             float probability = drop.last;
 
-            // get random item with probability here
-            // then add into probableDrops
+            if (RandomHelper.ShouldGotValue(probability)) probableDrops.Add(item);
         }
 
         return probableDrops;

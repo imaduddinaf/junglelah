@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittable, ISmartAI, SmartBrainDelegate, IDropableObject {
+public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittable, ISmartAI, ISmartBrainDelegate, IDropableObject {
     private float _attack;
     private float _attackRange;
     private float _defend;
@@ -140,6 +140,7 @@ public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittab
     }
 
     // MONO BEHAVIOUR
+    private RandomTester _randomTester = new RandomTester();
 
     public override void DoOnAwake() {
         base.DoOnAwake();
@@ -154,7 +155,12 @@ public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittab
     public override void DoOnFixedUpdate() {
         base.DoOnFixedUpdate();
 
-        brain.Observe(objectToBeObserved);
+        if (objectToBeObserved != null) {
+            brain.Observe(objectToBeObserved);
+        }
+
+        // random test
+        _randomTester.ProbabilityTest(30);
     }
 
     // LOGIC

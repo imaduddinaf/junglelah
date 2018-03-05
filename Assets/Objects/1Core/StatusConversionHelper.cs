@@ -3,32 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class RandomHelper { 
-
-    public static List<int> GetInts(int amount) {
-        List<int> ints = new List<int>();
-
-        return ints;
-    }
-
-    public static List<int> aThousandInts = GetInts(1000);
-
-    public static bool ShouldGotValue(float chance) {
-        if (chance > 100) return true;
-        // can only handles probability until 1 digit after comma ',' (xx.x%)
-
-        int MAX_LIST = 1000;
-        int intProbability = (int)(chance * 10);
-        List<int> indexes = aThousandInts;
-
-        indexes.Shuffle<int>();
-
-        int selectedIndex = UnityEngine.Random.Range(1, MAX_LIST);
-
-        return selectedIndex <= intProbability;
-    }
-}
-
 public static class StatusConversionHelper {
 
     static float SPEED_DIVIDER = 50;

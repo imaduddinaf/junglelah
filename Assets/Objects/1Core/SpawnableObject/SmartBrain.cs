@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,7 +7,7 @@ public enum SmartBrainState {
     Aware, Aggresive, Fleeing, Alert, Idle // game designer to decide
 }
 
-public interface SmartBrainDelegate {
+public interface ISmartBrainDelegate {
     Vector2 distanceToTarget { get; }
 
     GameObject body { get; }
@@ -20,49 +21,56 @@ public interface SmartBrainDelegate {
 }
 
 public class SmartBrain {
-    public SmartBrainDelegate brainDelegate;
+    public WeakReference brainDelegate;
+    private ISmartBrainDelegate _brainDelegate {
+        get { return brainDelegate.Target as ISmartBrainDelegate; }
+    }
 
     public SmartBrainState state = SmartBrainState.Idle;
     public float alertArea;
     public float awarenessArea;
     public float aggresiveArea;
 
-    public SmartBrain(SmartBrainDelegate brainDelegate) {
-        this.brainDelegate = brainDelegate;
+    public SmartBrain(ISmartBrainDelegate brainDelegate) {
+        this.brainDelegate = new WeakReference(brainDelegate);
     }
 
     public void Observe(GameObject target) {
+        if (_brainDelegate == null) return; 
+
         state = DetermineState(target);
 
         switch (state) {
             case SmartBrainState.Aggresive:
-                brainDelegate.OnAggresive(target);
+                _brainDelegate.OnAggresive(target);
                 break;
             case SmartBrainState.Alert:
-                brainDelegate.OnAlert(target);
+                _brainDelegate.OnAlert(target);
                 break;
             case SmartBrainState.Aware:
-                brainDelegate.OnAware(target);
+                _brainDelegate.OnAware(target);
                 break;
             case SmartBrainState.Fleeing:
-                brainDelegate.OnFleeing(target);
+                _brainDelegate.OnFleeing(target);
                 break;
             case SmartBrainState.Idle:
-                brainDelegate.OnIdle(target);
+                _brainDelegate.OnIdle(target);
                 break;
         }
     }
 
     public SmartBrainState DetermineState(GameObject target) {
+        if (_brainDelegate == null) return SmartBrainState.Idle;
+
         SmartBrainState state;
 
         if (ShouldFlee()) {
             state = SmartBrainState.Fleeing;
-        } else if (StatusConversionHelper.IsInsideRange(brainDelegate.distanceToTarget, StatusConversionHelper.GetActualAIStateArea(aggresiveArea))) {
+        } else if (StatusConversionHelper.IsInsideRange(_brainDelegate.distanceToTarget, StatusConversionHelper.GetActualAIStateArea(aggresiveArea))) {
             state = SmartBrainState.Aggresive;
-        } else if (StatusConversionHelper.IsInsideRange(brainDelegate.distanceToTarget, StatusConversionHelper.GetActualAIStateArea(awarenessArea))) {
+        } else if (StatusConversionHelper.IsInsideRange(_brainDelegate.distanceToTarget, StatusConversionHelper.GetActualAIStateArea(awarenessArea))) {
             state = SmartBrainState.Aware;
-        } else if (StatusConversionHelper.IsInsideRange(brainDelegate.distanceToTarget, StatusConversionHelper.GetActualAIStateArea(alertArea))) {
+        } else if (StatusConversionHelper.IsInsideRange(_brainDelegate.distanceToTarget, StatusConversionHelper.GetActualAIStateArea(alertArea))) {
             state = SmartBrainState.Alert;
         } else {
             state = SmartBrainState.Idle;
@@ -72,6 +80,8 @@ public class SmartBrain {
     }
 
     private bool ShouldFlee() {
+        if (_brainDelegate == null) return false;
+
         // TODO:
         // complete this func
         // check if delegate has custom flee logic
@@ -79,8 +89,8 @@ public class SmartBrain {
 
         bool shouldFlee = false;
 
-        IAttackable attacker = brainDelegate.objectToBeObserved.GetComponent<IAttackable>();
-        IHittable defender = brainDelegate.body.GetComponent<IHittable>();
+        IAttackable attacker = _brainDelegate.objectToBeObserved.GetComponent<IAttackable>();
+        IHittable defender = _brainDelegate.body.GetComponent<IHittable>();
 
         return shouldFlee;
     }

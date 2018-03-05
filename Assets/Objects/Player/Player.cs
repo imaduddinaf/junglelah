@@ -79,7 +79,7 @@ public class Player : SpawnableObject, IMoveable, IAttackable, IHittable {
         set { _mana = value; }
     }
 
-    public float defend {
+    public float defense {
         get { return _defend; }
         set { _defend = value; }
     }
@@ -93,7 +93,23 @@ public class Player : SpawnableObject, IMoveable, IAttackable, IHittable {
 
     public void Attack(IHittable target) {
         float attackDamage = StatusConversionHelper.GetAttackDamage(attack, critical, criticalChance);
-        target.GetHit(attackDamage);
+        target.GetHitBy(this);
+    }
+
+    public void Kill(IDropableObject target, GameObject targetGameObject) {
+        List<IItem> drops = target.GetDrops();
+
+        // save drops
+
+        targetGameObject.Destroy();
+    }
+
+    public void GetHitBy(IAttackable enemy) {
+        Debug.Log("player got hit by something");
+    }
+
+    public void KilledBy(IAttackable enemy) { 
+        // empty
     }
 
     public override void DoOnStart() {
@@ -110,9 +126,5 @@ public class Player : SpawnableObject, IMoveable, IAttackable, IHittable {
         base.DoOnTriggerEnter(other);
 
         // empty
-    }
-
-    public void GetHit(float attack) {
-        Debug.Log("player got hit by something");
     }
 }

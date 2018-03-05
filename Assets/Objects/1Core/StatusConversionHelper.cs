@@ -28,11 +28,6 @@ public static class StatusConversionHelper {
         return stateArea / AREA_DIVIDER;
     }
 
-    public static float GetActualAttackRange(float attackRange) { // unit
-        // wait for designer formulas
-        return attackRange / AREA_DIVIDER;
-    }
-
     public static bool IsInsideRange(Vector2 distance, float range) {
         return Math.Abs(distance.x) <= range && Math.Abs(distance.y) <= range;
     }

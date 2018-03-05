@@ -101,7 +101,7 @@ public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittab
         set { _mana = value; }
     }
 
-    public float defend {
+    public float defense {
         get { return _defend; }
         set { _defend = value; }
     }
@@ -169,15 +169,7 @@ public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittab
 
     public override void DoOnFixedUpdate() {
         base.DoOnFixedUpdate();
-
-        if (objectToBeObserved == null) {
-            Debug.Log("observed object null");
-        }
-
-        if (brain == null) {
-            Debug.Log("brain null");
-        }
-
+        
         // weird, sometimes this object become null
         brain.Observe(objectToBeObserved);
     }
@@ -192,17 +184,27 @@ public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittab
         // init monster properties by code
     }
 
-    public void Attack(IHittable target)  {
-        float attackDamage = StatusConversionHelper.GetAttackDamage(attack, critical, criticalChance);
-        target.GetHit(attackDamage);
-    }
-
     public virtual void AttackAction() {
         // empty
     }
 
-    public void GetHit(float attack) {
-        healthPoint -= StatusConversionHelper.GetHitDamage(attack, defend);
+    public void Attack(IHittable target)  {
+        float attackDamage = StatusConversionHelper.GetAttackDamage(attack, critical, criticalChance);
+        target.GetHitBy(this);
+    }
+
+    public void Kill(IDropableObject target, GameObject targetGameObject) {
+        targetGameObject.Destroy();
+    }
+
+    public void GetHitBy(IAttackable enemy) {
+        healthPoint -= StatusConversionHelper.GetHitDamage(enemy.attack, defense);
+
+        if (healthPoint <= 0) KilledBy(enemy);
+    }
+
+    public void KilledBy(IAttackable enemy) {
+        enemy.Kill(this, gameObject);
     }
 
     public void Move(Vector2 direction) {
@@ -262,7 +264,7 @@ public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittab
             IItem item = drop.first;
             float probability = drop.last;
 
-            if (RandomHelper.ShouldGotValue2(probability)) probableDrops.Add(item);
+            if (RandomHelper.ShouldGotValue(probability)) probableDrops.Add(item);
         }
 
         return probableDrops;

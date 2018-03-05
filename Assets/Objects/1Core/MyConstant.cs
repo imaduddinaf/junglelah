@@ -22,7 +22,11 @@ public class MyConstant {
     
 }
 
-public static class MyExtensions { 
+public static class MyExtensions {
+
+    public static void Destroy<T>(this T obj) where T : UnityEngine.Object {
+        UnityEngine.Object.Destroy(obj);
+    }
 
     public static void Shuffle<T>(this IList<T> list) {
         int n = list.Count;

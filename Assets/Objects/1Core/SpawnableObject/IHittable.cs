@@ -4,8 +4,9 @@ using UnityEngine;
 
 public interface IHittable {
     float healthPoint { get; set; }
-    float defend { get; set; }
+    float defense { get; set; }
     Rigidbody2D rigidBody { get; }
 
-    void GetHit(float attack);
+    void GetHitBy(IAttackable enemy);
+    void KilledBy(IAttackable enemy);
 }

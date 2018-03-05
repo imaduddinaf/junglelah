@@ -32,7 +32,7 @@ public class Ghoul : Monster {
         }
 
         // attack if inside attack range
-        if (!isAttacking && StatusConversionHelper.IsInsideRange(distanceToTarget, attackRange)) {
+        if (!isAttacking && StatusConversionHelper.IsInsideRange(distanceToTarget, StatusConversionHelper.GetActualAIStateArea(attackRange))) {
             AttackAction();
         }
     }
@@ -45,7 +45,7 @@ public class Ghoul : Monster {
         attack = 50;
         attackRange = 40;
         healthPoint = 200;
-        defend = 20;
+        defense = 20;
         movementSpeed = 100;
 
         alertArea = 200;

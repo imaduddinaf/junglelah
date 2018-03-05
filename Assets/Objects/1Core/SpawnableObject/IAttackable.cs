@@ -21,4 +21,5 @@ public interface IAttackable {
     AttackState attackState { get; set; }
 
     void Attack(IHittable target);
+    void Kill(IDropableObject target, GameObject targetGameObject);
 }

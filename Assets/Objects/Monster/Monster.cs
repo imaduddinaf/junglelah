@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittable, ISmartAI, ISmartBrainDelegate, IDropableObject {
@@ -140,8 +141,20 @@ public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittab
     }
 
     // MONO BEHAVIOUR
-    private RandomTester _randomTester = new RandomTester();
+    private RandomTester _randomTester30 = new RandomTester(500, 30);
+    private RandomTester _randomTester50 = new RandomTester(500, 50);
+    private RandomTester _randomTester70 = new RandomTester(500, 70);
 
+    private void RandomTest() { 
+        Thread t1 = new Thread(_randomTester30.ProbabilityTest);
+        Thread t2 = new Thread(_randomTester50.ProbabilityTest);
+        Thread t3 = new Thread(_randomTester70.ProbabilityTest);
+
+        t1.Start();
+        t2.Start();
+        t3.Start();
+    }
+    
     public override void DoOnAwake() {
         base.DoOnAwake();
 
@@ -150,17 +163,23 @@ public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittab
 
         InitAttributes();
         PopulateDrops();
+
+        //RandomTest();
     }
 
     public override void DoOnFixedUpdate() {
         base.DoOnFixedUpdate();
 
-        if (objectToBeObserved != null) {
-            brain.Observe(objectToBeObserved);
+        if (objectToBeObserved == null) {
+            Debug.Log("observed object null");
         }
 
-        // random test
-        _randomTester.ProbabilityTest(30);
+        if (brain == null) {
+            Debug.Log("brain null");
+        }
+
+        // weird, sometimes this object become null
+        brain.Observe(objectToBeObserved);
     }
 
     // LOGIC
@@ -243,7 +262,7 @@ public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittab
             IItem item = drop.first;
             float probability = drop.last;
 
-            if (RandomHelper.ShouldGotValue(probability)) probableDrops.Add(item);
+            if (RandomHelper.ShouldGotValue2(probability)) probableDrops.Add(item);
         }
 
         return probableDrops;

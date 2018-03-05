@@ -22,15 +22,14 @@ public class MyConstant {
     
 }
 
-public static class MyExtensions {
-
-    private static System.Random random = new System.Random();
+public static class MyExtensions { 
 
     public static void Shuffle<T>(this IList<T> list) {
         int n = list.Count;
 
         while (n > 1) {
             n--;
+            System.Random random = new System.Random();
             int k = random.Next(n + 1);
             T value = list[k];
             list[k] = list[n];

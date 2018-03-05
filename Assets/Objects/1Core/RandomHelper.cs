@@ -6,10 +6,16 @@ public class RandomTester {
     float func1 = 0;
     float func2 = 0;
     float total = 0;
-    float MAX_SAMPLE = 10000;
+    float sample = 0;
+    float probability = 0;
 
-    public void ProbabilityTest(float probability) {
-        if (total >= MAX_SAMPLE) return;
+    public RandomTester(float sample, float probability) {
+        this.sample = sample;
+        this.probability = probability;
+    }
+
+    public void ProbabilityTest() {
+        if (total >= sample) return;
 
         if (RandomHelper.ShouldGotValue(probability)) func1++;
         if (RandomHelper.ShouldGotValue2(probability)) func2++;
@@ -20,8 +26,13 @@ public class RandomTester {
         float func2Prob = (func2 / total) * 100;
 
         Debug.Log("prob test, total: " + total + ", for: " + probability + "%");
-        Debug.Log("prob for f1: " + func1 + "(" + func1Prob + "%)");
-        Debug.Log("prob for f2: " + func2 + "(" + func2Prob + "%)");
+
+        if (total == sample) {
+            Debug.Log(probability + "% probtest for f1: " + func1 + "(" + func1Prob + "%)");
+            Debug.Log(probability + "% probtest for f2: " + func2 + "(" + func2Prob + "%)");
+        }
+
+        ProbabilityTest();
     }
 }
 
@@ -47,7 +58,8 @@ public static class RandomHelper {
 
         indexes.Shuffle<int>();
 
-        int selectedIndex = UnityEngine.Random.Range(MIN_LIST, MAX_LIST);
+        System.Random random = new System.Random();
+        int selectedIndex = random.Next(MIN_LIST, MAX_LIST);
 
         return selectedIndex <= intProbability;
     }
@@ -56,8 +68,9 @@ public static class RandomHelper {
         if (chance > 100) return true;
 
         int intProbability = (int)(chance * 10);
-        int random = UnityEngine.Random.Range(MIN_LIST, MAX_LIST);
+        System.Random random = new System.Random();
+        int randomVal = random.Next(MIN_LIST, MAX_LIST);
 
-        return random <= intProbability;
+        return randomVal <= intProbability;
     }
 }

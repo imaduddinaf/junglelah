@@ -201,6 +201,7 @@ public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittab
         healthPoint -= StatusConversionHelper.GetHitDamage(enemy.attack, defense);
 
         if (healthPoint <= 0) KilledBy(enemy);
+		Debug.Log ("Monster got hit.");
     }
 
     public void KilledBy(IAttackable enemy) {
@@ -258,7 +259,7 @@ public abstract class Monster : SpawnableObject, IMoveable, IAttackable, IHittab
 
     public void OnAggresive(GameObject target) {
         Follow(target, 100);
-        LookAwayIntoTarget();
+        LookIntoTarget();
     }
 
     public void OnAware(GameObject target) {

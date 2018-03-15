@@ -242,6 +242,11 @@ Prefab:
       propertyPath: m_Name
       value: ActionController
       objectReference: {fileID: 0}
+    - target: {fileID: 114123882794926778, guid: 7b8b750cc0266414687e3265093b4671,
+        type: 2}
+      propertyPath: controllableObject
+      value: 
+      objectReference: {fileID: 1300312568}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 7b8b750cc0266414687e3265093b4671, type: 2}
   m_IsPrefabParent: 0

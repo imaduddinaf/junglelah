@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player : SpawnableObject, IMoveable, IAttackable, IHittable {
+public class Player : SpawnableObject, IControllable, IMoveable, IAttackable, IHittable {
     private float _attack;
     private float _attackRange;
     private float _defend;
@@ -12,6 +12,7 @@ public class Player : SpawnableObject, IMoveable, IAttackable, IHittable {
     private float _stamina;
     private float _mana;
     private float _movementSpeed;
+	public bool _isSprinting;
     public float defaultMovSpeed;
 
     private float _maxAttackDuration = 1;
@@ -84,17 +85,50 @@ public class Player : SpawnableObject, IMoveable, IAttackable, IHittable {
         set { _defend = value; }
     }
 
+	public bool isSprinting{
+		get { return _isSprinting; }
+		set { _isSprinting = value; }
+	}
+
+	public override void DoOnUpdate() {
+		base.DoOnUpdate ();
+		float MAGIC_CONST = 3; //amount of stamina gained per second
+		stamina += MAGIC_CONST;
+	}
+
     public void Move(Vector2 direction) {
         float actualSpeed = StatusConversionHelper.GetActualMovementSpeed(movementSpeed);
-        float MAGIC_CONST = 32; // const convert addtoforce speed matching movetowards speed
+		float MAGIC_CONST = 32; // const convert addtoforce speed matching movetowards speed
 
         rigidBody.AddForce(direction * Time.deltaTime * actualSpeed * MAGIC_CONST, ForceMode2D.Impulse);
     }
+
+	public void Sprint(Vector2 direction) {
+		float actualSpeed = StatusConversionHelper.GetActualMovementSpeed(movementSpeed);
+		float MAGIC_CONST =  42; // const convert addtoforce speed matching movetowards speed
+		float STAMINA_COST_CONST = 7;
+
+		if (stamina < STAMINA_COST_CONST) {
+			Move (direction);
+			return;
+		}
+		stamina -= STAMINA_COST_CONST;
+		rigidBody.AddForce(direction * Time.deltaTime * actualSpeed * MAGIC_CONST, ForceMode2D.Impulse);
+	}
+
+	public void Attack() {
+		isAttacking = true;
+		
+	}
 
     public void Attack(IHittable target) {
         float attackDamage = StatusConversionHelper.GetAttackDamage(attack, critical, criticalChance);
         target.GetHitBy(this);
     }
+
+	public void Dash(Vector2 direction) {
+
+	}
 
     public void Kill(IDropableObject target, GameObject targetGameObject) {
         List<IItem> drops = target.GetDrops();
@@ -120,11 +154,17 @@ public class Player : SpawnableObject, IMoveable, IAttackable, IHittable {
         } else {
             movementSpeed = 50; // dummy speed
         }
+
+		stamina = 100; //dummy stamina
 	}
 
     public override void DoOnTriggerEnter(Collider2D other) {
         base.DoOnTriggerEnter(other);
 
-        // empty
+		IHittable hittableTarget = other.GetComponent<IHittable> ();
+		if (isAttacking && hittableTarget != null) {
+			Attack (hittableTarget);
+			isAttacking = false;
+		}
     }
 }

@@ -92,11 +92,13 @@ public class Ghoul : Monster {
             _hand.GetComponent<Rigidbody2D>().transform.Translate(direction * Time.deltaTime * MAGIC_CONST);
             //_hand.GetComponent<Rigidbody2D>().AddForce(direction * Time.deltaTime * MAGIC_CONST, ForceMode2D.Impulse);
             attackState = AttackState.Idle;
+			Debug.Log ("Ghoul punching");
         } else { // back
             Vector2 backDirection = direction == Vector2.right ? Vector2.left : Vector2.right;
             _hand.GetComponent<Rigidbody2D>().transform.Translate(direction * Time.deltaTime * -MAGIC_CONST);
             //_hand.GetComponent<Rigidbody2D>().AddForce(direction * Time.deltaTime * -MAGIC_CONST, ForceMode2D.Impulse);
             isAttacking = false;
+			Debug.Log ("Ghoul punched");
         }
     }
 }
